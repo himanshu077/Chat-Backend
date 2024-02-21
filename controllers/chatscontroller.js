@@ -48,14 +48,14 @@ const userRegister = async (req, res) => {
       .status(400)
       .json({ message: "Username or email already exists" });
   } else {
-    const newUserregister = new Users({
+    const newUserregister = await Users.create({
         username:username,
         email:email,
       password: hashedPassword,
     });
 
-    const result = await newUserregister.save();   
-    const {_id}=await result.toJSON();
+    // const result = await newUserregister.save();   
+    const {_id}=await newUserregister.toJSON();
     const token = jwt.sign({_id: _id}, "secret");
     res.cookie("jwt", token,{
         httpOnly: true,
