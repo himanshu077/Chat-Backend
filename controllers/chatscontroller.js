@@ -11,7 +11,7 @@ const cookieparsal= require('cookie-parser')
 const jwt = require('jsonwebtoken'); 
 
 
-const connectDb = require("../db/connect");
+const connectDb = require("../config/database");
 const userlogin = async (req, res) => {
   user= await Users.findOne({email:req.body.email})
   if(!user){
