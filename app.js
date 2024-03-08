@@ -1,55 +1,50 @@
+// app.js
 require('dotenv').config();
 const express = require('express');
 const http = require('http');
-const socketIo = require('socket.io');
 const cors = require('cors');
-const cookieparsal= require('cookie-parser')
-const connectDb = require('./db/connect');
+const cookieParser = require('cookie-parser');
+const connectDb = require('./config/database');
 const chatsRoutes = require('./routes/chats');
+const socketHandler = require('./socket');
+const socketIo = require('socket.io')
 
 const app = express();
 const server = http.createServer(app);
-const io = socketIo(server);
+const io = socketIo(server,
+    {
+        cors: { origin: "*" }
+    }
+);
 
 const PORT = process.env.PORT || 3000;
 
 // Middleware
 app.use(cors({
-    origin: 'http://localhost:4200',
-    credentials: true 
+    origin: "*", // Allow requests from any origin
+    methods: ["GET", "POST"], // Allow only GET and POST requests
+    credentials: true // Allow sending cookies
 }));
+
 app.use(express.json());
-app.use(cookieparsal());
+app.use(cookieParser());
+
+// Middleware to attach socket.io instance to request object
+app.use((req, res, next) => {
+    req.io = io;
+    next();
+});
+
+// Socket.io handlers
+socketHandler(io);
 
 // Routes
 app.use('/api/chats', chatsRoutes);
 
-app.get('/', (req, resp) => {
-    resp.send('Hi, I am live');
+// Connect to MongoDB
+connectDb(process.env.MONGODB_URL);
+
+// Start the server
+server.listen(PORT, () => {
+    console.log(`Server running on port ${PORT}`);
 });
-
-io.on('connection', (socket) => {
-    console.log('New client connected');
-
-    socket.on('disconnect', () => {
-        console.log('Client disconnected');
-    });
-
-    socket.on('chat message', (msg) => {
-        console.log('Message:', msg);
-        io.emit('chat message', msg); 
-    });
-});
-
-const start = async () => {
-    try {
-        await connectDb(process.env.MONGODB_URL);
-        server.listen(PORT, () => {
-            console.log(`${PORT} Yes I am connected`);
-        });
-    } catch (error) {
-        console.error('Error connecting to MongoDB:', error);
-    }
-};
-
-start();
