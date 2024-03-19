@@ -1,6 +1,6 @@
 const mongoose = require('mongoose')
  
-const RoomchatSchema = new mongoose.Schema({
+const RoomSchema = new mongoose.Schema({
     roomID: {
       type: String,
       required: true,
@@ -11,4 +11,4 @@ const RoomchatSchema = new mongoose.Schema({
     }
 });
   
-  module.exports = mongoose.model("roomchat", RoomchatSchema);
+  module.exports = mongoose.model("rooms", RoomSchema);

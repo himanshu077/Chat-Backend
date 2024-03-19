@@ -1,25 +1,34 @@
 // database.js
-const { MongoClient } = require('mongodb');
+const mongoose = require('mongoose');
+const DB_URL = process.env.MONGODB_URL;
 
-// Connection URI
-const uri = process.env.MONGODB_URL; // Use the MongoDB URI from .env file
-const dbName = 'your_database_name'; // Replace with your database name
+module.exports = () => {
+  const connect = () => {
+    mongoose.Promise = global.Promise;
+    mongoose.connect(DB_URL, {
+      useNewUrlParser: true,
+      useUnifiedTopology: true
+    });
 
-async function connectToDatabase() {
-    try {
-        // Connect to MongoDB
-        const client = await MongoClient.connect(uri, { useNewUrlParser: true, useUnifiedTopology: true });
-        console.log('Connected to MongoDB');
+    mongoose.connection.on('connected', () => {
+      let dbStatus = `*    DB Connection: OK\n****************************\n`;
+      if (process.env.NODE_ENV !== 'test') {
+        // Prints initialization
+        console.log('****************************');
+        console.log('*    Starting Server');
+        console.log(`*    Port: ${process.env.PORT || 3000}`);
+        console.log(`*    NODE_ENV: ${process.env.NODE_ENV}`);
+        console.log(`*    Database: MongoDB`);
+        console.log(dbStatus);
+      }
+    });
 
-        // Select the database
-        const db = client.db(dbName);
+    mongoose.connection.on('error', (err) => {
+      console.error('* Error connecting to DB:', err);
+    });
 
-        // Return the database connection
-        return db;
-    } catch (error) {
-        console.error('Error connecting to MongoDB:', error);
-        throw error; // Throw error for handling in the calling function
-    }
-}
+    mongoose.connection.on('disconnected', connect);
+  };
 
-module.exports = connectToDatabase;
+  connect();
+};

@@ -5,7 +5,7 @@ const http = require('http');
 const cors = require('cors');
 const cookieParser = require('cookie-parser');
 const connectDb = require('./config/database');
-const chatsRoutes = require('./routes/chats');
+const userRoutes = require('./routes/users');
 const socketHandler = require('./socket');
 const socketIo = require('socket.io')
 
@@ -20,6 +20,11 @@ const io = socketIo(server,
 const PORT = process.env.PORT || 3000;
 
 // Middleware
+app.use((req, res, next) => {
+    console.log('\x1b[33m%s\x1b[0m', req.method, req.url); // Logging request method and URL in orange color
+    next();
+});
+
 app.use(cors({
     origin: "*", // Allow requests from any origin
     methods: ["GET", "POST"], // Allow only GET and POST requests
@@ -39,10 +44,10 @@ app.use((req, res, next) => {
 socketHandler(io);
 
 // Routes
-app.use('/api/chats', chatsRoutes);
+app.use('/api/users', userRoutes);
 
 // Connect to MongoDB
-connectDb(process.env.MONGODB_URL);
+connectDb();
 
 // Start the server
 server.listen(PORT, () => {
