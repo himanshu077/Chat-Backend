@@ -1,3 +1,5 @@
+const express = require('express');
+const app = express();
 const mongoose = require("mongoose");
 
 const bcrypt = require("bcrypt");
@@ -8,6 +10,9 @@ const jwt = require('jsonwebtoken');
 const Messages = require("../models/messages");
 const Room = require("../models/room");
 const Users = require("../models/users");
+
+// Add express.json() middleware to parse incoming JSON requests
+app.use(express.json());
 
 exports.login = async (req, res) => {
     user = await Users.findOne({ email: req.body.email })
@@ -27,7 +32,8 @@ exports.login = async (req, res) => {
         maxAge: 24 * 60 * 60 * 1000
     })
     res.send({
-        message: "success"
+        message: "success",
+        token
     })
 };
 
@@ -67,12 +73,13 @@ exports.register = async (req, res) => {
     }
 };
 
-const logout = async (req, res) => {
+exports.logout = async (req, res) => {
     try {
         // Clear JWT token from cookies
         res.clearCookie('jwt');
         res.send({
-            message: "JWT token deleted successfully"
+            message: "JWT token deleted successfully",
+            clearLocalStorage: true 
         });
     } catch (error) {
         console.error('Error during logout:', error);

@@ -26,7 +26,7 @@ app.use((req, res, next) => {
 });
 
 app.use(cors({
-    origin: "*", // Allow requests from any origin
+    origin: 'http://localhost:4200', // Allow requests from any origin
     methods: ["GET", "POST"], // Allow only GET and POST requests
     credentials: true // Allow sending cookies
 }));

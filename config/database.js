@@ -5,10 +5,7 @@ const DB_URL = process.env.MONGODB_URL;
 module.exports = () => {
   const connect = () => {
     mongoose.Promise = global.Promise;
-    mongoose.connect(DB_URL, {
-      useNewUrlParser: true,
-      useUnifiedTopology: true
-    });
+    mongoose.connect(DB_URL);
 
     mongoose.connection.on('connected', () => {
       let dbStatus = `*    DB Connection: OK\n****************************\n`;
